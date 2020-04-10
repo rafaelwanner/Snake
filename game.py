@@ -55,6 +55,7 @@ while running:
     eaten = eat()
     food.display(screen)
     snake.move()
+    pygame.time.wait(20)
 
 
 
