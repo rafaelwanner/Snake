@@ -13,7 +13,6 @@ class Snake():
         for part in self.snake:
             pygame.draw.rect(screen, part.color, (part.x, part.y, part.dim, part.dim), 0)
 
-
     def move_left(self):
         if self.movement != (1, 0):
             self.movement = (-1, 0)
@@ -42,6 +41,20 @@ class Snake():
 
     def snake_length(self):
         return self.size
+
+    def snake_overlap(self):
+        head = self.snake[0]
+        for part in self.snake[1:]:
+            x_min = part.x - part.dim/2
+            x_max = part.x + part.dim/2
+            y_min = part.y - part.dim/2
+            y_max = part.y + part.dim/2
+            if x_min <= head.x <= x_max:
+                if y_min <= head.y <= y_max:
+                    index = self.snake.index(part)
+                    del self.snake[index:self.size]
+                    self.size = index
+                    break
 
 
 class Part():

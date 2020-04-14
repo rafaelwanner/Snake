@@ -19,17 +19,6 @@ large_font = pygame.font.Font("font.ttf", 55)
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Snake Game")
 
-#checks if snake ate the food
-def eat():
-    x_min = food.x - food.dim/2
-    x_max = food.x + food.dim/2
-    y_min = food.y - food.dim/2
-    y_max = food.y + food.dim/2
-    head = snake.snake[0]
-    if x_min <= head.x <= x_max:
-        if y_min <= head.y <= y_max:
-            return True
-    return False
 
 def check_gameover():
     head = snake.snake[0]
@@ -39,7 +28,7 @@ def check_gameover():
             get_key_input()
             snake.draw(screen)
             food.display(screen)
-            screen.blit(large_font.render("You loose!", -1, font_color), (275, 200))
+            screen.blit(large_font.render("You lost!", -1, font_color), (275, 200))
             screen.blit(large_font.render("Score: " + str(snake.snake_length() - 1), -1, font_color), (300, 320))
             pygame.display.update()
 
@@ -47,6 +36,8 @@ def display_score():
     text = small_font.render("Score: " + str(snake.snake_length() - 1), -1, font_color)
     screen.blit(text, (10, 10))
 
+def check_tail():
+    pass
 
 def food_eaten():
     x_min = food.x - food.dim/2
@@ -94,8 +85,9 @@ while running:
 
     food.display(screen)
     snake.move()
-    check_gameover()
-    display_score()
     food_gone = food_eaten()
+    check_gameover()
+    snake.snake_overlap()
+    display_score()
     pygame.display.update()
     pygame.time.wait(20)
