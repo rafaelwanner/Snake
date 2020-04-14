@@ -1,37 +1,70 @@
 import pygame
 import random
+from sys import exit
 from snake import *
 
-black = (0, 0, 0)
-height = 800
-width = 600
 pygame.init()
 
-screen = pygame.display.set_mode((height,width))
+#constant values
+background_color = (139, 177, 167)
+font_color = (255, 0, 0)
+width = 800
+height = 600
+margin = 20
+
+#fonts
+small_font = pygame.font.Font("font.ttf", 20)
+large_font = pygame.font.Font("font.ttf", 55)
+
+screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Snake Game")
 
+#checks if snake ate the food
 def eat():
     x_min = food.x - food.dim/2
     x_max = food.x + food.dim/2
     y_min = food.y - food.dim/2
     y_max = food.y + food.dim/2
-    pos = snake.snake[0]
-    if x_min <= pos.x <= x_max:
-        if y_min <= pos.y <= y_max:
+    head = snake.snake[0]
+    if x_min <= head.x <= x_max:
+        if y_min <= head.y <= y_max:
             return True
     return False
 
+def check_gameover():
+    head = snake.snake[0]
+    if head.x > width or head.x < 0 or head.y < 0 or head.y > height:
+        end = True
+        while end:
+            get_key_input()
+            snake.draw(screen)
+            food.display(screen)
+            screen.blit(large_font.render("You loose!", -1, font_color), (275, 200))
+            screen.blit(large_font.render("Score: " + str(snake.snake_length() - 1), -1, font_color), (300, 320))
+            pygame.display.update()
 
-snake = Snake()
-running = True
-start = True
-eaten = True
-while running:
+def display_score():
+    text = small_font.render("Score: " + str(snake.snake_length() - 1), -1, font_color)
+    screen.blit(text, (10, 10))
 
+
+def food_eaten():
+    x_min = food.x - food.dim/2
+    x_max = food.x + food.dim/2
+    y_min = food.y - food.dim/2
+    y_max = food.y + food.dim/2
+    head = snake.snake[0]
+    if x_min <= head.x <= x_max:
+        if y_min <= head.y <= y_max:
+            return True
+    return False
+
+#checks for key input
+def get_key_input():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
-
+            pygame.quit()
+            exit()
     keys = pygame.key.get_pressed()
     if keys[pygame.K_RIGHT]:
         snake.move_right()
@@ -42,23 +75,27 @@ while running:
     if keys[pygame.K_DOWN]:
         snake.move_down()
 
-    screen.fill(black)
+snake = Snake()
+running = True
+food_gone = True
+while running:
+
+    get_key_input()
+    screen.fill(background_color)
     snake.draw(screen)
 
-    if eaten:
-        x = random.randint(20, height - 20)
-        y = random.randint(20, width - 20)
-        food = Part(x, y)
+    #a new food spaws
+    if food_gone:
+        x = random.randint(margin, width - margin)
+        y = random.randint(margin, height - margin)
+        food = Part(x, y, color=(234, 50, 111))
         snake.add()
-        eaten = False
+        food_gone = False
 
-    eaten = eat()
     food.display(screen)
     snake.move()
-    pygame.time.wait(20)
-
-
-
-
-
+    check_gameover()
+    display_score()
+    food_gone = food_eaten()
     pygame.display.update()
+    pygame.time.wait(20)
