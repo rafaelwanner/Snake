@@ -1,9 +1,17 @@
 import pygame
 import random
 from sys import exit
+import pickle
 from snake import *
 
 pygame.init()
+
+#loading high scores
+try:
+    with open('score.dat', 'rb') as file:
+        high_score = pickle.load(file)
+except:
+    high_score = 0
 
 #constant values
 background_color = (139, 177, 167)
@@ -26,9 +34,15 @@ pygame.display.set_caption("Snake Game")
 
 #checks if game is over (snake moved into wall)
 def check_gameover():
+    global high_score
+    score = snake.snake_length() - 1
     head = snake.snake[0]
     if head.x > width or head.x < 0 or head.y < 0 or head.y > height:
         dead.play()
+        if score > high_score:
+            high_score = score
+            with open('score.dat', 'wb') as file:
+                pickle.dump(high_score, file)
         end = True
         while end:
             check_exit()
@@ -42,9 +56,14 @@ def check_gameover():
             msg_pos = msg.get_rect(center=(width/2, height/3))
             screen.blit(msg, msg_pos)
             #message 2
-            msg = large_font.render("Score: " + str(snake.snake_length() - 1), -1, font_color)
-            msg_pos = msg.get_rect(center=(width/2, height/2))
-            screen.blit(msg, msg_pos)
+            if high_score == score:
+                msg = large_font.render("Congrats! New high score: " + str(high_score), -1, font_color)
+                msg_pos = msg.get_rect(center=(width/2, height/2))
+                screen.blit(msg, msg_pos)
+            else:
+                msg = large_font.render("Score: " + str(score) + "   " + "High score: " + str(high_score), -1, font_color)
+                msg_pos = msg.get_rect(center=(width/2, height/2))
+                screen.blit(msg, msg_pos)
             #message 3
             msg = small_font.render("Press any key to play again", -1, font_color)
             msg_pos = msg.get_rect(center=(width/2, 2*height/3))
@@ -66,6 +85,7 @@ def food_eaten():
     head = snake.snake[0]
     if x_min <= head.x <= x_max:
         if y_min <= head.y <= y_max:
+            eaten.play()
             return True
     return False
 
@@ -116,7 +136,6 @@ def game_loop():
             global food
             food = Part(x, y, color=(234, 50, 111))
             snake.add()
-            eaten.play()
             food_gone = False
 
         food.display(screen)
