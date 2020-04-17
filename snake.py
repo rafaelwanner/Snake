@@ -56,7 +56,6 @@ class Snake():
                     self.size = index
                     break
 
-
 class Part():
 
     def __init__(self, x, y, dim=10, color=(0 ,0 ,0)):
